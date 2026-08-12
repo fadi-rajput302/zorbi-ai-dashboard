@@ -16,6 +16,7 @@ import {
   LayoutDashboard,
   ListChecks,
   LogOut,
+  Menu,
   MoreHorizontal,
   NotebookPen,
   Presentation,
@@ -32,6 +33,15 @@ import { toast } from "sonner";
 
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { ZorbiMascot } from "@/components/ZorbiMascot";
+import { AiTutor } from "@/components/app/AiTutor";
+import { Assignments } from "@/components/app/Assignments";
+import { Materials } from "@/components/app/Materials";
+import { Notes } from "@/components/app/Notes";
+import { ProgressScreen } from "@/components/app/ProgressScreen";
+import { Quizzes } from "@/components/app/Quizzes";
+import { RewardsScreen } from "@/components/app/RewardsScreen";
+import { SettingsScreen } from "@/components/app/SettingsScreen";
+import { StudyGroups } from "@/components/app/StudyGroups";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -41,94 +51,62 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
-/* ------------------------------------------------------------------ */
-/*  Data                                                            */
-/* ------------------------------------------------------------------ */
+type ScreenId =
+  | "dashboard"
+  | "tutor"
+  | "materials"
+  | "assignments"
+  | "notes"
+  | "quizzes"
+  | "progress"
+  | "rewards"
+  | "groups"
+  | "settings";
 
-const NAV_ITEMS = [
-  { label: "Dashboard", icon: LayoutDashboard, active: true },
-  { label: "AI Tutor", icon: Sparkles },
-  { label: "My Materials", icon: FolderOpen },
-  { label: "Assignments", icon: ClipboardList },
-  { label: "Notes", icon: NotebookPen },
-  { label: "Quizzes", icon: ListChecks },
-  { label: "Progress", icon: TrendingUp },
-  { label: "Rewards", icon: Gift },
-  { label: "Study Groups", icon: Users },
-  { label: "Settings", icon: Settings },
+const NAV_ITEMS: {
+  id: ScreenId;
+  label: string;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  badge?: string;
+}[] = [
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "tutor", label: "AI Tutor", icon: Sparkles },
+  { id: "materials", label: "My Materials", icon: FolderOpen },
+  { id: "assignments", label: "Assignments", icon: ClipboardList, badge: "3" },
+  { id: "notes", label: "Notes", icon: NotebookPen },
+  { id: "quizzes", label: "Quizzes", icon: ListChecks },
+  { id: "progress", label: "Progress", icon: TrendingUp },
+  { id: "rewards", label: "Rewards", icon: Gift },
+  { id: "groups", label: "Study Groups", icon: Users },
+  { id: "settings", label: "Settings", icon: Settings },
 ];
 
+/* ------------------------------------------------------------------ */
+/*  Data (home widgets)                                              */
+/* ------------------------------------------------------------------ */
+
 const STATS = [
-  {
-    label: "Materials",
-    value: "24",
-    sub: "Uploaded by you",
-    icon: FolderOpen,
-    tint: "bg-indigo-50 text-indigo-600",
-  },
-  {
-    label: "Assignments",
-    value: "8",
-    sub: "Pending tasks",
-    icon: ClipboardList,
-    tint: "bg-orange-50 text-orange-500",
-  },
-  {
-    label: "Quizzes",
-    value: "15",
-    sub: "Attempted",
-    icon: ListChecks,
-    tint: "bg-violet-50 text-violet-500",
-  },
-  {
-    label: "Points",
-    value: "1,250",
-    sub: "Zorbi Points",
-    icon: Star,
-    tint: "bg-emerald-50 text-emerald-500",
-  },
+  { label: "Materials", value: "24", sub: "Uploaded by you", icon: FolderOpen, tint: "bg-indigo-50 text-indigo-600" },
+  { label: "Assignments", value: "8", sub: "Pending tasks", icon: ClipboardList, tint: "bg-orange-50 text-orange-500" },
+  { label: "Quizzes", value: "15", sub: "Attempted", icon: ListChecks, tint: "bg-violet-50 text-violet-500" },
+  { label: "Points", value: "1,250", sub: "Zorbi Points", icon: Star, tint: "bg-emerald-50 text-emerald-500" },
 ];
 
 const MATERIALS = [
-  {
-    name: "Calculus Notes.pdf",
-    type: "PDF",
-    size: "4.2 MB",
-    date: "Aug 10, 2026",
-    tag: "Mathematics",
-    icon: FileText,
-    tint: "bg-rose-50 text-rose-500",
-  },
-  {
-    name: "Physics Chapter 5.pptx",
-    type: "PPTX",
-    size: "12.8 MB",
-    date: "Aug 9, 2026",
-    tag: "Physics",
-    icon: Presentation,
-    tint: "bg-orange-50 text-orange-500",
-  },
-  {
-    name: "Chemistry Formula Sheet.pdf",
-    type: "PDF",
-    size: "1.6 MB",
-    date: "Aug 8, 2026",
-    tag: "Chemistry",
-    icon: FileText,
-    tint: "bg-emerald-50 text-emerald-600",
-  },
-  {
-    name: "English Essay Guide.docx",
-    type: "DOCX",
-    size: "860 KB",
-    date: "Aug 7, 2026",
-    tag: "English",
-    icon: FileType,
-    tint: "bg-sky-50 text-sky-600",
-  },
+  { name: "Calculus Notes.pdf", type: "PDF", size: "4.2 MB", date: "Aug 10, 2026", tag: "Mathematics", icon: FileText, tint: "bg-rose-50 text-rose-500" },
+  { name: "Physics Chapter 5.pptx", type: "PPTX", size: "12.8 MB", date: "Aug 9, 2026", tag: "Physics", icon: Presentation, tint: "bg-orange-50 text-orange-500" },
+  { name: "Chemistry Formula Sheet.pdf", type: "PDF", size: "1.6 MB", date: "Aug 8, 2026", tag: "Chemistry", icon: FileText, tint: "bg-emerald-50 text-emerald-600" },
+  { name: "English Essay Guide.docx", type: "DOCX", size: "860 KB", date: "Aug 7, 2026", tag: "English", icon: FileType, tint: "bg-sky-50 text-sky-600" },
 ];
 
 interface PlanTask {
@@ -166,16 +144,23 @@ const PARTICLES = [
 /*  Sidebar                                                          */
 /* ------------------------------------------------------------------ */
 
-function Sidebar() {
+function SidebarNav({
+  active,
+  onSelect,
+  onNavigate,
+}: {
+  active: ScreenId;
+  onSelect: (id: ScreenId) => void;
+  onNavigate?: () => void;
+}) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[264px] flex-col border-r border-white/60 bg-white/55 px-4 py-6 backdrop-blur-2xl lg:flex">
+    <div className="flex h-full flex-col">
       {/* Brand */}
       <div className="flex items-center gap-2.5 px-2">
         <ZorbiMascot size={38} glow={false} />
         <div className="leading-none">
           <div className="text-[17px] font-bold tracking-tight text-slate-900">
-            Zorbi{" "}
-            <span className="text-brand-gradient font-extrabold">AI</span>
+            Zorbi <span className="text-brand-gradient font-extrabold">AI</span>
           </div>
           <div className="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-slate-400">
             Learning Studio
@@ -185,13 +170,17 @@ function Sidebar() {
 
       {/* Navigation */}
       <nav className="mt-8 flex flex-1 flex-col gap-1 overflow-y-auto pr-1">
-        {NAV_ITEMS.map(({ label, icon: Icon, active }) => (
+        {NAV_ITEMS.map(({ id, label, icon: Icon, badge }) => (
           <button
-            key={label}
+            key={id}
             type="button"
+            onClick={() => {
+              onSelect(id);
+              onNavigate?.();
+            }}
             className={cn(
               "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-              active
+              active === id
                 ? "bg-white text-indigo-600 shadow-[0_1px_2px_rgba(28,40,92,0.06),0_8px_20px_-10px_rgba(79,108,240,0.28)] ring-1 ring-white/80"
                 : "text-slate-500 hover:bg-white/70 hover:text-slate-900",
             )}
@@ -199,14 +188,26 @@ function Sidebar() {
             <Icon
               className={cn(
                 "size-[18px] shrink-0 transition-colors",
-                active
+                active === id
                   ? "text-indigo-500"
                   : "text-slate-400 group-hover:text-indigo-500",
               )}
-              strokeWidth={active ? 2.2 : 2}
+              strokeWidth={active === id ? 2.2 : 2}
             />
             <span className="flex-1 text-left">{label}</span>
-            {active && (
+            {badge && (
+              <span
+                className={cn(
+                  "rounded-full px-1.5 py-0.5 text-[10px] font-bold",
+                  active === id
+                    ? "bg-indigo-500 text-white"
+                    : "bg-orange-100 text-orange-500",
+                )}
+              >
+                {badge}
+              </span>
+            )}
+            {active === id && (
               <span className="size-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.7)]" />
             )}
           </button>
@@ -222,17 +223,37 @@ function Sidebar() {
             <Crown className="size-4 text-amber-200" />
             <span className="text-sm font-bold">Go Premium</span>
           </div>
-          <p className="mt-1.5 text-xs leading-relaxed text-indigo-50/95">
-            Unlock unlimited uploads, AI tutor 24/7, and more.
-          </p>
+          <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-indigo-50/95">
+            <li>· Unlimited uploads</li>
+            <li>· AI Tutor 24/7</li>
+            <li>· Premium features</li>
+          </ul>
           <button
             type="button"
+            onClick={() => {
+              onSelect("settings");
+              onNavigate?.();
+            }}
             className="mt-3.5 w-full rounded-full bg-white py-2 text-xs font-semibold text-indigo-600 shadow-sm transition-all hover:-translate-y-px hover:bg-indigo-50 hover:shadow-md"
           >
             Upgrade Now
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function Sidebar({
+  active,
+  onSelect,
+}: {
+  active: ScreenId;
+  onSelect: (id: ScreenId) => void;
+}) {
+  return (
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[264px] flex-col border-r border-white/60 bg-white/55 px-4 py-6 backdrop-blur-2xl lg:flex">
+      <SidebarNav active={active} onSelect={onSelect} />
     </aside>
   );
 }
@@ -241,7 +262,7 @@ function Sidebar() {
 /*  Top bar                                                          */
 /* ------------------------------------------------------------------ */
 
-function SearchInput() {
+function SearchInput({ onAskTutor }: { onAskTutor: (query: string) => void }) {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -258,9 +279,7 @@ function SearchInput() {
 
   const submit = () => {
     if (!query.trim()) return;
-    toast("Zorbi is thinking…", {
-      description: `I'll help you with “${query.trim()}” in a moment.`,
-    });
+    onAskTutor(query);
     setQuery("");
   };
 
@@ -290,7 +309,11 @@ function SearchInput() {
   );
 }
 
-function TopBar() {
+function TopBar({
+  onAskTutor,
+}: {
+  onAskTutor: (query: string) => void;
+}) {
   const { user, signOut } = useAuth();
   const [open, setOpen] = useState(false);
 
@@ -310,12 +333,17 @@ function TopBar() {
       </div>
 
       <div className="mx-auto hidden max-w-md flex-1 md:block">
-        <SearchInput />
+        <SearchInput onAskTutor={onAskTutor} />
       </div>
 
       <div className="ml-auto flex shrink-0 items-center gap-2.5">
         <button
           type="button"
+          onClick={() =>
+            toast("Upgrade to Pro", {
+              description: "Checkout is coming soon — we'll wire up Stripe!",
+            })
+          }
           className="hidden items-center gap-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2 text-xs font-semibold text-white shadow-[0_10px_24px_-10px_rgba(99,102,241,0.6)] transition-all hover:-translate-y-px hover:shadow-[0_14px_28px_-10px_rgba(99,102,241,0.7)] sm:flex"
         >
           <Sparkles className="size-3.5" />
@@ -382,19 +410,17 @@ function TopBar() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Hero                                                             */
+/*  Home widgets                                                     */
 /* ------------------------------------------------------------------ */
 
-function Hero() {
+function Hero({ onStartLearning }: { onStartLearning: () => void }) {
   return (
     <section className="relative overflow-hidden rounded-[2rem] border border-white/70 bg-gradient-to-b from-white/95 via-white/80 to-indigo-50/70 p-7 shadow-[0_1px_2px_rgba(28,40,92,0.05),0_24px_60px_-28px_rgba(79,108,240,0.35)] backdrop-blur-2xl sm:p-9">
-      {/* decorative gradient blobs */}
       <div className="pointer-events-none absolute -left-24 -top-28 size-72 rounded-full bg-indigo-100/80 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-32 -right-20 size-80 rounded-full bg-violet-100/70 blur-3xl" />
       <div className="pointer-events-none absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-white to-transparent" />
 
       <div className="relative grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
-        {/* I'm Zorbi! */}
         <motion.div
           initial={{ opacity: 0, x: -24 }}
           animate={{ opacity: 1, x: 0 }}
@@ -417,6 +443,7 @@ function Hero() {
           <div className="mt-4 flex items-center gap-2">
             <button
               type="button"
+              onClick={onStartLearning}
               className="flex items-center gap-1.5 rounded-full bg-indigo-50 px-3.5 py-1.5 text-xs font-semibold text-indigo-600 transition-colors hover:bg-indigo-100"
             >
               <Sparkles className="size-3.5" />
@@ -432,7 +459,6 @@ function Hero() {
           </div>
         </motion.div>
 
-        {/* Mascot + particles */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -443,10 +469,7 @@ function Hero() {
           {PARTICLES.map((p, i) => (
             <span
               key={i}
-              className={cn(
-                "animate-zorbi-rise absolute rounded-full",
-                p.bg,
-              )}
+              className={cn("animate-zorbi-rise absolute rounded-full", p.bg)}
               style={{
                 left: p.left,
                 top: p.top,
@@ -461,7 +484,6 @@ function Hero() {
           <ZorbiMascot size={180} float className="relative z-10" />
         </motion.div>
 
-        {/* Study streak */}
         <motion.div
           initial={{ opacity: 0, x: 24 }}
           animate={{ opacity: 1, x: 0 }}
@@ -480,7 +502,6 @@ function Hero() {
             </div>
           </div>
 
-          {/* upward sparkline */}
           <svg viewBox="0 0 120 40" className="mt-4 w-full" aria-hidden="true">
             <defs>
               <linearGradient id="streak-fill" x1="0" y1="0" x2="0" y2="1">
@@ -492,18 +513,8 @@ function Hero() {
                 <stop offset="100%" stopColor="#fbbf24" />
               </linearGradient>
             </defs>
-            <path
-              d="M 0 32 L 20 26 L 40 29 L 60 20 L 80 23 L 100 12 L 120 4 L 120 40 L 0 40 Z"
-              fill="url(#streak-fill)"
-            />
-            <path
-              d="M 0 32 L 20 26 L 40 29 L 60 20 L 80 23 L 100 12 L 120 4"
-              fill="none"
-              stroke="url(#streak-stroke)"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+            <path d="M 0 32 L 20 26 L 40 29 L 60 20 L 80 23 L 100 12 L 120 4 L 120 40 L 0 40 Z" fill="url(#streak-fill)" />
+            <path d="M 0 32 L 20 26 L 40 29 L 60 20 L 80 23 L 100 12 L 120 4" fill="none" stroke="url(#streak-stroke)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
             <circle cx="120" cy="4" r="4" fill="#fbbf24" />
           </svg>
 
@@ -513,9 +524,10 @@ function Hero() {
             </span>
             <button
               type="button"
+              onClick={onStartLearning}
               className="flex items-center gap-0.5 text-xs font-semibold text-orange-500 transition-colors hover:text-orange-600"
             >
-              View
+              Ask Zorbi
               <ArrowUpRight className="size-3.5" />
             </button>
           </div>
@@ -524,10 +536,6 @@ function Hero() {
     </section>
   );
 }
-
-/* ------------------------------------------------------------------ */
-/*  Stats                                                            */
-/* ------------------------------------------------------------------ */
 
 function StatsGrid() {
   return (
@@ -551,9 +559,7 @@ function StatsGrid() {
             </div>
             <ArrowUpRight className="size-4 text-slate-300 transition-colors group-hover:text-indigo-400" />
           </div>
-          <div className="mt-4 text-[13px] font-medium text-slate-500">
-            {label}
-          </div>
+          <div className="mt-4 text-[13px] font-medium text-slate-500">{label}</div>
           <div className="mt-0.5 text-[28px] font-bold leading-none tracking-tight text-slate-900">
             {value}
           </div>
@@ -564,24 +570,17 @@ function StatsGrid() {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Recent materials + Today's plan                                  */
-/* ------------------------------------------------------------------ */
-
-function RecentMaterials() {
+function RecentMaterials({ onViewAll }: { onViewAll: () => void }) {
   return (
     <section className="glass rounded-3xl p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-bold text-slate-900">
-            Recent Materials
-          </h2>
-          <p className="mt-0.5 text-xs text-slate-400">
-            Your latest study files
-          </p>
+          <h2 className="text-base font-bold text-slate-900">Recent Materials</h2>
+          <p className="mt-0.5 text-xs text-slate-400">Your latest study files</p>
         </div>
         <button
           type="button"
+          onClick={onViewAll}
           className="flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-indigo-600 transition-colors hover:bg-indigo-50"
         >
           View all
@@ -595,20 +594,13 @@ function RecentMaterials() {
             key={name}
             className="group flex cursor-pointer items-center gap-3.5 rounded-2xl px-3 py-3 transition-all duration-200 hover:bg-white/90 hover:shadow-[0_8px_20px_-12px_rgba(79,108,240,0.35)]"
           >
-            <div
-              className={cn(
-                "flex size-10 shrink-0 items-center justify-center rounded-xl",
-                tint,
-              )}
-            >
+            <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-xl", tint)}>
               <Icon className="size-5" strokeWidth={2} />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[13.5px] font-semibold text-slate-800">
-                {name}
-              </div>
+              <div className="truncate text-[13.5px] font-semibold text-slate-800">{name}</div>
               <div className="mt-0.5 text-xs text-slate-400">
-                {size} · {date}
+                {type} · {size} · {date}
               </div>
             </div>
             <Badge
@@ -635,9 +627,7 @@ function TodayPlan() {
   const [tasks, setTasks] = useState<PlanTask[]>(INITIAL_PLAN);
 
   const toggle = (id: number) =>
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
-    );
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
 
   return (
     <section className="glass rounded-3xl p-6">
@@ -663,7 +653,9 @@ function TodayPlan() {
             key={task.id}
             className={cn(
               "group flex items-center gap-3.5 rounded-2xl px-3 py-3 transition-all duration-200",
-              task.done ? "opacity-70" : "hover:bg-white/90 hover:shadow-[0_8px_20px_-12px_rgba(79,108,240,0.35)]",
+              task.done
+                ? "opacity-70"
+                : "hover:bg-white/90 hover:shadow-[0_8px_20px_-12px_rgba(79,108,240,0.35)]",
             )}
           >
             <button
@@ -680,12 +672,7 @@ function TodayPlan() {
               {task.done && <Check className="size-3.5" strokeWidth={3} />}
             </button>
             <div className="min-w-0 flex-1">
-              <div
-                className={cn(
-                  "truncate text-[13.5px] font-semibold",
-                  task.done ? "text-slate-400 line-through" : "text-slate-800",
-                )}
-              >
+              <div className={cn("truncate text-[13.5px] font-semibold", task.done ? "text-slate-400 line-through" : "text-slate-800")}>
                 {task.title}
               </div>
               <div className="mt-0.5 flex items-center gap-2 text-xs text-slate-400">
@@ -716,11 +703,7 @@ function TodayPlan() {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Progress + Ask Zorbi                                             */
-/* ------------------------------------------------------------------ */
-
-function ProgressCard() {
+function ProgressCard({ onDetails }: { onDetails: () => void }) {
   return (
     <section className="glass rounded-3xl p-6">
       <div className="flex items-center justify-between">
@@ -732,6 +715,7 @@ function ProgressCard() {
         </div>
         <button
           type="button"
+          onClick={onDetails}
           className="flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-indigo-600 transition-colors hover:bg-indigo-50"
         >
           Details
@@ -740,7 +724,6 @@ function ProgressCard() {
       </div>
 
       <div className="mt-6 flex flex-col items-center gap-6 sm:flex-row sm:gap-8">
-        {/* overall ring */}
         <div className="relative size-36 shrink-0">
           <svg viewBox="0 0 100 100" className="size-full -rotate-90">
             <defs>
@@ -749,14 +732,7 @@ function ProgressCard() {
                 <stop offset="100%" stopColor="#a78bfa" />
               </linearGradient>
             </defs>
-            <circle
-              cx="50"
-              cy="50"
-              r="42"
-              fill="none"
-              stroke="#e8ecf8"
-              strokeWidth="10"
-            />
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#e8ecf8" strokeWidth="10" />
             <motion.circle
               cx="50"
               cy="50"
@@ -772,23 +748,16 @@ function ProgressCard() {
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-[26px] font-bold leading-none text-slate-900">
-              75%
-            </span>
-            <span className="mt-1 text-[11px] font-medium text-slate-400">
-              Overall
-            </span>
+            <span className="text-[26px] font-bold leading-none text-slate-900">75%</span>
+            <span className="mt-1 text-[11px] font-medium text-slate-400">Overall</span>
           </div>
         </div>
 
-        {/* subject bars */}
         <div className="w-full flex-1 space-y-4">
           {SUBJECTS.map(({ name, value, bar, text }, i) => (
             <div key={name}>
               <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-[13px] font-medium text-slate-600">
-                  {name}
-                </span>
+                <span className="text-[13px] font-medium text-slate-600">{name}</span>
                 <span className={cn("text-xs font-bold", text)}>{value}%</span>
               </div>
               <div className="h-2.5 overflow-hidden rounded-full bg-slate-200/70">
@@ -796,15 +765,8 @@ function ProgressCard() {
                   initial={{ width: 0 }}
                   whileInView={{ width: `${value}%` }}
                   viewport={{ once: true }}
-                  transition={{
-                    duration: 1,
-                    delay: 0.1 + i * 0.1,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                  className={cn(
-                    "h-full rounded-full bg-gradient-to-r",
-                    bar,
-                  )}
+                  transition={{ duration: 1, delay: 0.1 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                  className={cn("h-full rounded-full bg-gradient-to-r", bar)}
                 />
               </div>
             </div>
@@ -815,14 +777,12 @@ function ProgressCard() {
   );
 }
 
-function AskZorbiCard() {
+function AskZorbiCard({ onAsk }: { onAsk: (question: string) => void }) {
   const [question, setQuestion] = useState("");
 
   const submit = () => {
     if (!question.trim()) return;
-    toast("Question sent to Zorbi 🧠", {
-      description: "Zorbi is preparing a clear, step-by-step answer.",
-    });
+    onAsk(question);
     setQuestion("");
   };
 
@@ -833,19 +793,13 @@ function AskZorbiCard() {
 
       <div className="relative flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h2 className="text-base font-bold text-slate-900">
-            Ask Zorbi
-          </h2>
+          <h2 className="text-base font-bold text-slate-900">Ask Zorbi</h2>
           <p className="mt-1 text-[13px] leading-relaxed text-slate-500">
-            What do you want to learn today? Get instant explanations,
-            summaries and practice questions.
+            What do you want to learn today? Get instant explanations, summaries
+            and practice questions.
           </p>
         </div>
-        <ZorbiMascot
-          size={56}
-          className="shrink-0"
-          float
-        />
+        <ZorbiMascot size={56} className="shrink-0" float />
       </div>
 
       <div className="relative mt-5 flex items-center gap-2 rounded-full bg-white/85 p-1.5 pl-5 shadow-[0_10px_28px_-14px_rgba(79,108,240,0.45)] ring-1 ring-white/90 transition-shadow focus-within:ring-2 focus-within:ring-indigo-300/60">
@@ -867,72 +821,139 @@ function AskZorbiCard() {
       </div>
 
       <div className="relative mt-4 flex flex-wrap items-center gap-2">
-        <span className="text-[11px] font-medium text-slate-400">
-          Try asking:
-        </span>
-        {["Explain derivatives", "Summarize Chapter 5", "Quiz me on Chemistry"].map(
-          (suggestion) => (
-            <button
-              key={suggestion}
-              type="button"
-              onClick={() => setQuestion(suggestion)}
-              className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-medium text-slate-500 ring-1 ring-slate-200/80 transition-all hover:-translate-y-px hover:text-indigo-600 hover:ring-indigo-200"
-            >
-              {suggestion}
-            </button>
-          ),
-        )}
+        <span className="text-[11px] font-medium text-slate-400">Try asking:</span>
+        {["Explain derivatives", "Summarize Chapter 5", "Quiz me on Chemistry"].map((suggestion) => (
+          <button
+            key={suggestion}
+            type="button"
+            onClick={() => setQuestion(suggestion)}
+            className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-medium text-slate-500 ring-1 ring-slate-200/80 transition-all hover:-translate-y-px hover:text-indigo-600 hover:ring-indigo-200"
+          >
+            {suggestion}
+          </button>
+        ))}
       </div>
     </section>
   );
 }
 
+function DashboardHome({
+  onOpenTutor,
+  onOpenMaterials,
+  onOpenProgress,
+  onAsk,
+}: {
+  onOpenTutor: () => void;
+  onOpenMaterials: () => void;
+  onOpenProgress: () => void;
+  onAsk: (query: string) => void;
+}) {
+  return (
+    <>
+      <Hero onStartLearning={onOpenTutor} />
+      <StatsGrid />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <RecentMaterials onViewAll={onOpenMaterials} />
+        <TodayPlan />
+      </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <ProgressCard onDetails={onOpenProgress} />
+        <AskZorbiCard onAsk={onAsk} />
+      </div>
+    </>
+  );
+}
+
 /* ------------------------------------------------------------------ */
-/*  Page                                                             */
+/*  Shell                                                            */
 /* ------------------------------------------------------------------ */
 
 export default function Dashboard() {
+  const [active, setActive] = useState<ScreenId>("dashboard");
+  const [tutorDraft, setTutorDraft] = useState({ query: "", version: 0 });
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [active]);
+
+  const select = (id: ScreenId) => setActive(id);
+
+  const askTutor = (query: string) => {
+    setTutorDraft((d) => ({ query, version: d.version + 1 }));
+    setActive("tutor");
+  };
+
   return (
     <div className="min-h-screen text-slate-900">
       <AmbientBackground />
-      <Sidebar />
+      <Sidebar active={active} onSelect={select} />
 
       {/* Mobile header */}
-      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-white/60 bg-white/60 px-5 py-3 backdrop-blur-2xl lg:hidden">
+      <div className="sticky top-0 z-40 flex items-center justify-between border-b border-white/60 bg-white/60 px-4 py-3 backdrop-blur-2xl lg:hidden">
         <div className="flex items-center gap-2">
-          <ZorbiMascot size={30} glow={false} />
-          <span className="text-base font-bold tracking-tight">
-            Zorbi <span className="text-brand-gradient">AI</span>
-          </span>
+          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                aria-label="Open navigation"
+                className="glass-soft flex size-9 items-center justify-center rounded-full text-slate-600"
+              >
+                <Menu className="size-[18px]" />
+              </button>
+            </SheetTrigger>
+            <SheetContent
+              side="left"
+              className="w-[290px] border-r border-white/60 bg-white/70 p-4 backdrop-blur-2xl"
+            >
+              <SheetHeader className="sr-only">
+                <SheetTitle>Navigation</SheetTitle>
+              </SheetHeader>
+              <SidebarNav
+                active={active}
+                onSelect={select}
+                onNavigate={() => setSheetOpen(false)}
+              />
+            </SheetContent>
+          </Sheet>
+          <div className="flex items-center gap-2">
+            <ZorbiMascot size={30} glow={false} />
+            <span className="text-base font-bold tracking-tight">
+              Zorbi <span className="text-brand-gradient">AI</span>
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <SearchInput />
-          <Avatar className="size-9 ring-2 ring-white">
-            <AvatarFallback className="bg-gradient-to-br from-indigo-400 to-violet-400 text-sm font-semibold text-white">
-              F
-            </AvatarFallback>
-          </Avatar>
-        </div>
+        <Avatar className="size-9 ring-2 ring-white">
+          <AvatarFallback className="bg-gradient-to-br from-indigo-400 to-violet-400 text-sm font-semibold text-white">
+            F
+          </AvatarFallback>
+        </Avatar>
       </div>
 
       <div className="lg:pl-[264px]">
         <div className="mx-auto max-w-[1200px] px-4 py-7 sm:px-8">
-          <TopBar />
+          <TopBar onAskTutor={askTutor} />
 
           <main className="mt-8 flex flex-col gap-6">
-            <Hero />
-
-            <StatsGrid />
-
-            <div className="grid gap-6 lg:grid-cols-2">
-              <RecentMaterials />
-              <TodayPlan />
-            </div>
-
-            <div className="grid gap-6 lg:grid-cols-2">
-              <ProgressCard />
-              <AskZorbiCard />
-            </div>
+            {active === "dashboard" && (
+              <DashboardHome
+                onOpenTutor={() => select("tutor")}
+                onOpenMaterials={() => select("materials")}
+                onOpenProgress={() => select("progress")}
+                onAsk={askTutor}
+              />
+            )}
+            {active === "tutor" && (
+              <AiTutor draft={tutorDraft.query} draftVersion={tutorDraft.version} />
+            )}
+            {active === "materials" && <Materials onAskTutor={askTutor} />}
+            {active === "assignments" && <Assignments />}
+            {active === "notes" && <Notes />}
+            {active === "quizzes" && <Quizzes />}
+            {active === "progress" && <ProgressScreen />}
+            {active === "rewards" && <RewardsScreen />}
+            {active === "groups" && <StudyGroups />}
+            {active === "settings" && <SettingsScreen />}
 
             <footer className="flex flex-col items-center justify-between gap-3 pb-4 pt-2 text-xs text-slate-400 sm:flex-row">
               <span>© 2026 Zorbi AI — Learn smarter, together.</span>
