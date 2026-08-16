@@ -1,12 +1,15 @@
 import { motion } from "framer-motion";
 import {
+  ArrowRight,
   ArrowUpRight,
+  BarChart3,
   Bell,
+  BookOpen,
+  Bot,
   CalendarDays,
   Check,
   ChevronDown,
   ClipboardList,
-  Clock,
   Crown,
   FileText,
   FileType,
@@ -23,9 +26,8 @@ import {
   Search,
   Send,
   Settings,
-  Sparkles,
-  Star,
   TrendingUp,
+  Trophy,
   Users,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -80,7 +82,7 @@ const NAV_ITEMS: {
   badge?: string;
 }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "tutor", label: "AI Tutor", icon: Sparkles },
+  { id: "tutor", label: "AI Tutor", icon: Bot },
   { id: "materials", label: "My Materials", icon: FolderOpen },
   { id: "assignments", label: "Assignments", icon: ClipboardList, badge: "3" },
   { id: "notes", label: "Notes", icon: NotebookPen },
@@ -96,17 +98,17 @@ const NAV_ITEMS: {
 /* ------------------------------------------------------------------ */
 
 const STATS = [
-  { label: "Materials", value: "24", sub: "Uploaded by you", icon: FolderOpen, tint: "bg-indigo-50 text-indigo-600" },
-  { label: "Assignments", value: "8", sub: "Pending tasks", icon: ClipboardList, tint: "bg-orange-50 text-orange-500" },
-  { label: "Quizzes", value: "15", sub: "Attempted", icon: ListChecks, tint: "bg-violet-50 text-violet-500" },
-  { label: "Points", value: "1,250", sub: "Zorbi Points", icon: Star, tint: "bg-emerald-50 text-emerald-500" },
+  { label: "Materials", value: "24", sub: "Uploaded by you", icon: BookOpen, tint: "bg-sky-50 text-sky-500" },
+  { label: "Assignments", value: "8", sub: "Pending tasks", icon: ClipboardList, tint: "bg-violet-50 text-violet-500" },
+  { label: "Quizzes", value: "15", sub: "Attempted", icon: BarChart3, tint: "bg-emerald-50 text-emerald-500" },
+  { label: "Points", value: "1,250", sub: "Zorbi Points", icon: Trophy, tint: "bg-amber-50 text-amber-500" },
 ];
 
 const MATERIALS = [
-  { name: "Calculus Notes.pdf", type: "PDF", size: "4.2 MB", date: "Aug 10, 2026", tag: "Mathematics", icon: FileText, tint: "bg-rose-50 text-rose-500" },
-  { name: "Physics Chapter 5.pptx", type: "PPTX", size: "12.8 MB", date: "Aug 9, 2026", tag: "Physics", icon: Presentation, tint: "bg-orange-50 text-orange-500" },
-  { name: "Chemistry Formula Sheet.pdf", type: "PDF", size: "1.6 MB", date: "Aug 8, 2026", tag: "Chemistry", icon: FileText, tint: "bg-emerald-50 text-emerald-600" },
-  { name: "English Essay Guide.docx", type: "DOCX", size: "860 KB", date: "Aug 7, 2026", tag: "English", icon: FileType, tint: "bg-sky-50 text-sky-600" },
+  { name: "Calculus Notes.pdf", type: "PDF", size: "12 MB", date: "Uploaded 2h ago", tag: "Mathematics", icon: FileText, tint: "bg-rose-50 text-rose-500" },
+  { name: "Physics Chapter 5.pptx", type: "PPTX", size: "8.4 MB", date: "Uploaded 1d ago", tag: "Physics", icon: Presentation, tint: "bg-orange-50 text-orange-500" },
+  { name: "Chemistry Formula Sheet.pdf", type: "PDF", size: "2.1 MB", date: "Uploaded 2d ago", tag: "Chemistry", icon: FileText, tint: "bg-rose-50 text-rose-500" },
+  { name: "English Essay Guide.docx", type: "DOCX", size: "1.5 MB", date: "Uploaded 3d ago", tag: "English", icon: FileType, tint: "bg-sky-50 text-sky-600" },
 ];
 
 interface PlanTask {
@@ -118,8 +120,8 @@ interface PlanTask {
 }
 
 const INITIAL_PLAN: PlanTask[] = [
-  { id: 1, time: "10:00 AM", title: "Complete Calculus Assignment", subject: "Math", done: true },
-  { id: 2, time: "01:00 PM", title: "Study Physics – Chapter 6", subject: "Physics", done: false },
+  { id: 1, time: "10:00 AM", title: "Complete Calculus Assignment", subject: "Math", done: false },
+  { id: 2, time: "01:00 PM", title: "Study Physics – Chapter 6", subject: "Physics", done: true },
   { id: 3, time: "04:00 PM", title: "Attempt Quiz – Chemistry", subject: "Chemistry", done: false },
   { id: 4, time: "07:00 PM", title: "Revise English Essay", subject: "English", done: false },
 ];
@@ -158,13 +160,8 @@ function SidebarNav({
       {/* Brand */}
       <div className="flex items-center gap-2.5 px-2">
         <ZorbiMascot size={38} glow={false} />
-        <div className="leading-none">
-          <div className="text-[17px] font-bold tracking-tight text-slate-900">
-            Zorbi <span className="text-brand-gradient font-extrabold">AI</span>
-          </div>
-          <div className="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-slate-400">
-            Learning Studio
-          </div>
+        <div className="text-[17px] font-bold tracking-tight text-slate-900">
+          Zorbi <span className="text-brand-gradient font-extrabold">AI</span>
         </div>
       </div>
 
@@ -181,8 +178,8 @@ function SidebarNav({
             className={cn(
               "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
               active === id
-                ? "bg-white text-indigo-600 shadow-[0_1px_2px_rgba(28,40,92,0.06),0_8px_20px_-10px_rgba(79,108,240,0.28)] ring-1 ring-white/80"
-                : "text-slate-500 hover:bg-white/70 hover:text-slate-900",
+                ? "bg-indigo-50/90 text-indigo-600 shadow-[0_1px_2px_rgba(28,40,92,0.04),0_6px_16px_-10px_rgba(79,108,240,0.35)]"
+                : "text-slate-500 hover:bg-slate-50 hover:text-slate-900",
             )}
           >
             <Icon
@@ -207,36 +204,30 @@ function SidebarNav({
                 {badge}
               </span>
             )}
-            {active === id && (
-              <span className="size-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.7)]" />
-            )}
           </button>
         ))}
       </nav>
 
       {/* Premium card */}
-      <div className="relative mt-6 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-400 to-violet-400 p-4 text-white shadow-[0_16px_36px_-14px_rgba(99,102,241,0.55)]">
-        <div className="absolute -right-8 -top-10 size-28 rounded-full bg-white/20 blur-2xl" />
-        <div className="absolute -bottom-12 -left-8 size-28 rounded-full bg-violet-300/40 blur-2xl" />
-        <div className="relative">
-          <div className="flex items-center gap-1.5">
-            <Crown className="size-4 text-amber-200" />
-            <span className="text-sm font-bold">Go Premium</span>
-          </div>
-          <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-indigo-50/95">
-            <li>· Unlimited uploads</li>
-            <li>· AI Tutor 24/7</li>
-            <li>· Premium features</li>
-          </ul>
+      <div className="relative mt-6 overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50 via-orange-50/70 to-amber-100 p-4 ring-1 ring-amber-200/60 shadow-[0_14px_32px_-18px_rgba(217,119,6,0.4)]">
+        <div className="absolute -right-3 -top-3 flex size-9 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-400 text-white shadow-[0_8px_16px_-6px_rgba(245,158,11,0.55)]">
+          <Crown className="size-4" />
+        </div>
+        <div className="relative pr-1.5">
+          <div className="text-sm font-bold text-slate-900">Go Premium</div>
+          <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+            Unlock unlimited uploads, AI tutor 24/7, and more.
+          </p>
           <button
             type="button"
             onClick={() => {
               onSelect("settings");
               onNavigate?.();
             }}
-            className="mt-3.5 w-full rounded-full bg-white py-2 text-xs font-semibold text-indigo-600 shadow-sm transition-all hover:-translate-y-px hover:bg-indigo-50 hover:shadow-md"
+            className="mt-3.5 flex w-full items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 py-2 text-xs font-semibold text-white shadow-[0_10px_20px_-8px_rgba(99,102,241,0.65)] transition-all hover:-translate-y-px hover:shadow-[0_14px_24px_-8px_rgba(99,102,241,0.75)]"
           >
             Upgrade Now
+            <ArrowRight className="size-3.5" />
           </button>
         </div>
       </div>
@@ -252,7 +243,7 @@ function Sidebar({
   onSelect: (id: ScreenId) => void;
 }) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[264px] flex-col border-r border-white/60 bg-white/55 px-4 py-6 backdrop-blur-2xl lg:flex">
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[264px] flex-col border-r border-slate-200/70 bg-white/85 px-4 py-6 backdrop-blur-2xl lg:flex">
       <SidebarNav active={active} onSelect={onSelect} />
     </aside>
   );
@@ -323,16 +314,7 @@ function TopBar({
 
   return (
     <header className="flex items-center gap-5">
-      <div className="min-w-0">
-        <h1 className="truncate text-[26px] font-bold leading-tight tracking-tight text-slate-900">
-          Hello, {user?.name ?? "Fahad"}! 👋
-        </h1>
-        <p className="mt-0.5 text-sm text-slate-500">
-          Ready to learn something amazing today?
-        </p>
-      </div>
-
-      <div className="mx-auto hidden max-w-md flex-1 md:block">
+      <div className="mx-auto hidden w-full max-w-xl md:block">
         <SearchInput onAskTutor={onAskTutor} />
       </div>
 
@@ -344,9 +326,9 @@ function TopBar({
               description: "Checkout is coming soon — we'll wire up Stripe!",
             })
           }
-          className="hidden items-center gap-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2 text-xs font-semibold text-white shadow-[0_10px_24px_-10px_rgba(99,102,241,0.6)] transition-all hover:-translate-y-px hover:shadow-[0_14px_28px_-10px_rgba(99,102,241,0.7)] sm:flex"
+          className="hidden items-center gap-1.5 rounded-full bg-white/85 px-4 py-2 text-xs font-semibold text-violet-600 shadow-[0_6px_16px_-8px_rgba(124,58,237,0.35)] ring-1 ring-violet-200/80 transition-all hover:-translate-y-px hover:bg-white hover:shadow-[0_10px_22px_-8px_rgba(124,58,237,0.45)] sm:flex"
         >
-          <Sparkles className="size-3.5" />
+          <Crown className="size-3.5" />
           Upgrade to Pro
         </button>
 
@@ -413,49 +395,47 @@ function TopBar({
 /*  Home widgets                                                     */
 /* ------------------------------------------------------------------ */
 
-function Hero({ onStartLearning }: { onStartLearning: () => void }) {
+function Hero({
+  name,
+  onStartLearning,
+}: {
+  name?: string;
+  onStartLearning: () => void;
+}) {
   return (
     <section className="relative overflow-hidden rounded-[2rem] border border-white/70 bg-gradient-to-b from-white/95 via-white/80 to-indigo-50/70 p-7 shadow-[0_1px_2px_rgba(28,40,92,0.05),0_24px_60px_-28px_rgba(79,108,240,0.35)] backdrop-blur-2xl sm:p-9">
       <div className="pointer-events-none absolute -left-24 -top-28 size-72 rounded-full bg-indigo-100/80 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-32 -right-20 size-80 rounded-full bg-violet-100/70 blur-3xl" />
       <div className="pointer-events-none absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-white to-transparent" />
 
-      <div className="relative grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+      <div className="relative">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="text-[26px] font-bold leading-tight tracking-tight text-slate-900">
+              Hello, {name ?? "Fahad"}! 👋
+            </h1>
+            <p className="mt-0.5 text-sm text-slate-500">
+              Ready to learn something amazing today?
+            </p>
+          </div>
+        </div>
+
+        <div className="relative mt-8 grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
         <motion.div
           initial={{ opacity: 0, x: -24 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-          className="glass-chip max-w-xs rounded-3xl p-5 lg:justify-self-start"
+          className="glass-chip relative max-w-xs rounded-3xl p-5 lg:justify-self-start"
         >
           <div className="flex items-center gap-3">
             <ZorbiMascot size={44} glow={false} />
-            <div>
-              <div className="text-sm font-bold text-slate-900">I'm Zorbi!</div>
-              <div className="mt-0.5 flex items-center gap-1.5 text-[11px] font-medium text-emerald-600">
-                <span className="size-1.5 rounded-full bg-emerald-400" />
-                Online &amp; ready
-              </div>
-            </div>
+            <div className="text-sm font-bold text-slate-900">I'm Zorbi!</div>
           </div>
-          <p className="mt-3.5 text-[13px] leading-relaxed text-slate-500">
+          <p className="mt-3 text-[13px] leading-relaxed text-slate-500">
             Your AI study buddy. Ask me anything, I'm here to help!
           </p>
-          <div className="mt-4 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onStartLearning}
-              className="flex items-center gap-1.5 rounded-full bg-indigo-50 px-3.5 py-1.5 text-xs font-semibold text-indigo-600 transition-colors hover:bg-indigo-100"
-            >
-              <Sparkles className="size-3.5" />
-              Start learning
-            </button>
-            <button
-              type="button"
-              aria-label="More actions"
-              className="flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-            >
-              <MoreHorizontal className="size-4" />
-            </button>
+          <div className="absolute -bottom-3 -right-3 flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 text-white shadow-[0_8px_16px_-6px_rgba(124,58,237,0.65)]">
+            <Check className="size-4" strokeWidth={3} />
           </div>
         </motion.div>
 
@@ -481,7 +461,14 @@ function Hero({ onStartLearning }: { onStartLearning: () => void }) {
             />
           ))}
           <div className="pointer-events-none absolute bottom-8 left-1/2 h-40 w-[300px] -translate-x-1/2 rounded-full bg-indigo-200/40 blur-3xl" />
-          <ZorbiMascot size={180} float className="relative z-10" />
+          <button
+            type="button"
+            onClick={onStartLearning}
+            aria-label="Start learning with Zorbi"
+            className="relative z-10 cursor-pointer rounded-full transition-transform duration-300 hover:scale-[1.04] active:scale-95"
+          >
+            <ZorbiMascot size={180} float />
+          </button>
         </motion.div>
 
         <motion.div
@@ -505,33 +492,26 @@ function Hero({ onStartLearning }: { onStartLearning: () => void }) {
           <svg viewBox="0 0 120 40" className="mt-4 w-full" aria-hidden="true">
             <defs>
               <linearGradient id="streak-fill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#fb923c" stopOpacity="0.35" />
-                <stop offset="100%" stopColor="#fb923c" stopOpacity="0" />
+                <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
+                <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
               </linearGradient>
               <linearGradient id="streak-stroke" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#fb923c" />
-                <stop offset="100%" stopColor="#fbbf24" />
+                <stop offset="0%" stopColor="#10b981" />
+                <stop offset="100%" stopColor="#34d399" />
               </linearGradient>
             </defs>
             <path d="M 0 32 L 20 26 L 40 29 L 60 20 L 80 23 L 100 12 L 120 4 L 120 40 L 0 40 Z" fill="url(#streak-fill)" />
             <path d="M 0 32 L 20 26 L 40 29 L 60 20 L 80 23 L 100 12 L 120 4" fill="none" stroke="url(#streak-stroke)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-            <circle cx="120" cy="4" r="4" fill="#fbbf24" />
+            <circle cx="120" cy="4" r="4" fill="#34d399" />
           </svg>
 
-          <div className="mt-3 flex items-center justify-between">
+          <div className="mt-3">
             <span className="text-[13px] font-semibold text-slate-700">
               Keep it up! 🔥
             </span>
-            <button
-              type="button"
-              onClick={onStartLearning}
-              className="flex items-center gap-0.5 text-xs font-semibold text-orange-500 transition-colors hover:text-orange-600"
-            >
-              Ask Zorbi
-              <ArrowUpRight className="size-3.5" />
-            </button>
           </div>
         </motion.div>
+        </div>
       </div>
     </section>
   );
@@ -557,7 +537,7 @@ function StatsGrid() {
             >
               <Icon className="size-5" strokeWidth={2.1} />
             </div>
-            <ArrowUpRight className="size-4 text-slate-300 transition-colors group-hover:text-indigo-400" />
+            <ArrowRight className="size-4 text-slate-300 transition-colors group-hover:text-indigo-400" />
           </div>
           <div className="mt-4 text-[13px] font-medium text-slate-500">{label}</div>
           <div className="mt-0.5 text-[28px] font-bold leading-none tracking-tight text-slate-900">
@@ -623,7 +603,7 @@ function RecentMaterials({ onViewAll }: { onViewAll: () => void }) {
   );
 }
 
-function TodayPlan() {
+function TodayPlan({ onViewAll }: { onViewAll: () => void }) {
   const [tasks, setTasks] = useState<PlanTask[]>(INITIAL_PLAN);
 
   const toggle = (id: number) =>
@@ -632,18 +612,14 @@ function TodayPlan() {
   return (
     <section className="glass rounded-3xl p-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-base font-bold text-slate-900">Today's Plan</h2>
-          <p className="mt-0.5 text-xs text-slate-400">
-            {tasks.filter((t) => t.done).length} of {tasks.length} completed
-          </p>
-        </div>
+        <h2 className="text-base font-bold text-slate-900">Today's Plan</h2>
         <button
           type="button"
-          className="flex items-center gap-1 rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-600 transition-colors hover:bg-indigo-100"
+          onClick={onViewAll}
+          className="flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-indigo-600 transition-colors hover:bg-indigo-50"
         >
-          <CalendarDays className="size-3.5" />
-          Aug 12
+          View all
+          <ArrowUpRight className="size-3.5" />
         </button>
       </div>
 
@@ -665,36 +641,25 @@ function TodayPlan() {
               className={cn(
                 "flex size-6 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-200",
                 task.done
-                  ? "border-emerald-400 bg-gradient-to-br from-emerald-400 to-teal-400 text-white shadow-[0_4px_10px_-4px_rgba(16,185,129,0.6)]"
-                  : "border-slate-300 bg-white/80 hover:border-indigo-400",
+                  ? "border-violet-400 bg-gradient-to-br from-violet-500 to-indigo-500 text-white shadow-[0_4px_10px_-4px_rgba(139,92,246,0.6)]"
+                  : "border-slate-300 bg-white/80 hover:border-violet-400",
               )}
             >
               {task.done && <Check className="size-3.5" strokeWidth={3} />}
             </button>
             <div className="min-w-0 flex-1">
-              <div className={cn("truncate text-[13.5px] font-semibold", task.done ? "text-slate-400 line-through" : "text-slate-800")}>
+              <div
+                className={cn(
+                  "truncate text-[13.5px] font-semibold",
+                  task.done ? "text-slate-400 line-through" : "text-slate-800",
+                )}
+              >
                 {task.title}
               </div>
-              <div className="mt-0.5 flex items-center gap-2 text-xs text-slate-400">
-                <span className="flex items-center gap-1">
-                  <Clock className="size-3" />
-                  {task.time}
-                </span>
-                <span className="size-0.5 rounded-full bg-slate-300" />
-                <span>{task.subject}</span>
-              </div>
             </div>
-            <span
-              className={cn(
-                "hidden shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold sm:block",
-                task.done
-                  ? "bg-emerald-50 text-emerald-600"
-                  : task.id === 2
-                    ? "bg-indigo-50 text-indigo-600"
-                    : "bg-slate-100 text-slate-500",
-              )}
-            >
-              {task.done ? "Done" : task.id === 2 ? "Up next" : "Scheduled"}
+            <span className="hidden shrink-0 items-center gap-1.5 rounded-full bg-slate-100/80 px-2.5 py-1 text-[11px] font-semibold text-slate-500 ring-1 ring-white/80 sm:flex">
+              <CalendarDays className="size-3.5" />
+              {task.time}
             </span>
           </div>
         ))}
@@ -716,10 +681,10 @@ function ProgressCard({ onDetails }: { onDetails: () => void }) {
         <button
           type="button"
           onClick={onDetails}
-          className="flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-indigo-600 transition-colors hover:bg-indigo-50"
+          className="flex items-center gap-1 rounded-full bg-white/85 px-3 py-1.5 text-xs font-semibold text-slate-500 ring-1 ring-slate-200/80 transition-colors hover:text-indigo-600"
         >
-          Details
-          <ArrowUpRight className="size-3.5" />
+          This Month
+          <ChevronDown className="size-3.5" />
         </button>
       </div>
 
@@ -749,7 +714,9 @@ function ProgressCard({ onDetails }: { onDetails: () => void }) {
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-[26px] font-bold leading-none text-slate-900">75%</span>
-            <span className="mt-1 text-[11px] font-medium text-slate-400">Overall</span>
+            <span className="mt-1 text-center text-[10px] font-medium leading-tight text-slate-400">
+              Overall Progress
+            </span>
           </div>
         </div>
 
@@ -838,23 +805,27 @@ function AskZorbiCard({ onAsk }: { onAsk: (question: string) => void }) {
 }
 
 function DashboardHome({
+  name,
   onOpenTutor,
   onOpenMaterials,
   onOpenProgress,
+  onOpenAssignments,
   onAsk,
 }: {
+  name?: string;
   onOpenTutor: () => void;
   onOpenMaterials: () => void;
   onOpenProgress: () => void;
+  onOpenAssignments: () => void;
   onAsk: (query: string) => void;
 }) {
   return (
     <>
-      <Hero onStartLearning={onOpenTutor} />
+      <Hero name={name} onStartLearning={onOpenTutor} />
       <StatsGrid />
       <div className="grid gap-6 lg:grid-cols-2">
         <RecentMaterials onViewAll={onOpenMaterials} />
-        <TodayPlan />
+        <TodayPlan onViewAll={onOpenAssignments} />
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
         <ProgressCard onDetails={onOpenProgress} />
@@ -869,6 +840,7 @@ function DashboardHome({
 /* ------------------------------------------------------------------ */
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [active, setActive] = useState<ScreenId>("dashboard");
   const [tutorDraft, setTutorDraft] = useState({ query: "", version: 0 });
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -937,9 +909,11 @@ export default function Dashboard() {
           <main className="mt-8 flex flex-col gap-6">
             {active === "dashboard" && (
               <DashboardHome
+                name={user?.name ?? undefined}
                 onOpenTutor={() => select("tutor")}
                 onOpenMaterials={() => select("materials")}
                 onOpenProgress={() => select("progress")}
+                onOpenAssignments={() => select("assignments")}
                 onAsk={askTutor}
               />
             )}
