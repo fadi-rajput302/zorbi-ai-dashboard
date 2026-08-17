@@ -81,14 +81,6 @@ export function AiTutor({
   const draftSeen = useRef(draftVersion);
 
   useEffect(() => {
-    if (draftVersion !== draftSeen.current && draft.trim()) {
-      draftSeen.current = draftVersion;
-      sendMessage(draft);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draft, draftVersion]);
-
-  useEffect(() => {
     scrollRef.current?.scrollTo({
       top: scrollRef.current.scrollHeight,
       behavior: "smooth",
@@ -145,6 +137,17 @@ export function AiTutor({
       { id: nextId(), role: "assistant", content: reply, time: now() },
     ]);
   };
+
+  // Send a draft arriving from outside (e.g. the top search bar) as a message.
+  // Declared after `sendMessage` so the reference is live; runs after mount,
+  // and only when the draft version actually changes.
+  useEffect(() => {
+    if (draftVersion !== draftSeen.current && draft.trim()) {
+      draftSeen.current = draftVersion;
+      sendMessage(draft);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft, draftVersion]);
 
   const handleFile = (files: FileList | null) => {
     const file = files?.[0];
