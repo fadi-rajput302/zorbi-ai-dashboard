@@ -2,6 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 
 import { getCurrentUser } from "./users";
+import type { Id } from "./_generated/dataModel";
 import { mutation, query, MutationCtx, QueryCtx } from "./_generated/server";
 
 /* ------------------------------------------------------------------ */
@@ -60,7 +61,7 @@ async function getActiveMembers(ctx: QueryCtx | MutationCtx, groupId: string) {
 }
 
 async function getUserName(ctx: QueryCtx | MutationCtx, userId: string) {
-  const user = await ctx.db.get(userId as any);
+  const user = await ctx.db.get(userId as Id<"users">);
   return user?.name ?? "Student";
 }
 

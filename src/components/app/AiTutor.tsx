@@ -1,3 +1,4 @@
+import { useAction } from "convex/react";
 import { motion } from "framer-motion";
 import {
   Mic,
@@ -10,6 +11,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { api } from "@/convex/_generated/api";
 import { ZorbiMascot } from "@/components/ZorbiMascot";
 import { cn } from "@/lib/utils";
 
@@ -71,6 +73,7 @@ export function AiTutor({
   const [activeChat, setActiveChat] = useState(0);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const replyIndex = useRef(0);
+  const askZorbi = useAction(api.tutor.askZorbi);
   const fileRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   // Initialise to the current version so a remount (e.g. navigating back to
@@ -102,7 +105,15 @@ export function AiTutor({
     ]);
   };
 
-  const sendMessage = (text: string) => {
+  // Demo fallback used when the Gemini key isn't configured or the request fails.
+  const fallbackReply = (query: string) => {
+    const replies = buildReply(query);
+    const reply = replies[replyIndex.current % replies.length];
+    replyIndex.current += 1;
+    return reply;
+  };
+
+  const sendMessage = async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || typing) return;
     setMessages((prev) => [
@@ -112,10 +123,27 @@ export function AiTutor({
     setInput("");
     setShowSuggestions(false);
     setTyping(true);
-    window.setTimeout(() => {
-      setTyping(false);
-      pushAssistantReply(trimmed);
-    }, 1100);
+
+    let reply: string;
+    try {
+      const history = messages
+        .filter((m) => m.role === "user" || m.role === "assistant")
+        .map((m) => ({ role: m.role, content: m.content }));
+      const result = await askZorbi({
+        messages: [...history, { role: "user", content: trimmed }],
+      });
+      reply =
+        result.ok && result.reply ? result.reply : fallbackReply(trimmed);
+    } catch {
+      reply = fallbackReply(trimmed);
+    }
+    // Small floor so the typing indicator never flickers.
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    setTyping(false);
+    setMessages((prev) => [
+      ...prev,
+      { id: nextId(), role: "assistant", content: reply, time: now() },
+    ]);
   };
 
   const handleFile = (files: FileList | null) => {
@@ -137,6 +165,7 @@ export function AiTutor({
       setTyping(false);
       pushAssistantReply(`Let me read through ${file.name} for you…`);
     }, 1200);
+
     toast("File received", {
       description: "Zorbi is reading through it now.",
     });
